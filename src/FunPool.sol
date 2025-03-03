@@ -70,6 +70,7 @@ contract FunPool is Ownable, ReentrancyGuard {
     // fun token => fun token details
     mapping(address => FunTokenPool) public tokenPools;
     /// represents the tick spacing for each fee tier
+    //אין שימוש בחוזה
     mapping(uint24 => int256) public tickSpacing;
 
     event LiquidityAdded(address indexed provider, uint256 tokenAmount, uint256 taraAmount);
@@ -84,6 +85,7 @@ contract FunPool is Ownable, ReentrancyGuard {
         uint256 totalVolume
     );
 
+    //אירוע של מכירת וקנית טוקנים
     event tradeCall(
         address indexed caller,
         address indexed funContract,
@@ -139,7 +141,7 @@ contract FunPool is Ownable, ReentrancyGuard {
 
         // add the fun data for the fun token
         tokenPools[funToken] = pool;
-
+         //הוספת נזילות
         emit LiquidityAdded(address(this), _totalSupply, msg.value);
 
         return address(funToken); 
@@ -188,6 +190,7 @@ contract FunPool is Ownable, ReentrancyGuard {
         return tokenPools[_funToken];
     }
 
+// מחזירה מערך של כתובות ומחזירה נתונים מה structs
     function getFuntokenPools(address[] memory _funTokens) public view returns (FunTokenPool[] memory) {
         uint256 length = _funTokens.length;
         FunTokenPool[] memory pools = new FunTokenPool[](length);
@@ -200,6 +203,7 @@ contract FunPool is Ownable, ReentrancyGuard {
         return pools;
     }
 
+//מקבל כתובת משתמש ומחזיר מערך של כל הטוקנים של הכתובות שלו
     function getUserFuntokens(address _user) public view returns (address[] memory) {
         return userFunTokens[_user];
     }
@@ -256,6 +260,7 @@ contract FunPool is Ownable, ReentrancyGuard {
         IFunEventTracker(eventTracker).sellEvent(msg.sender, _funToken, tokenToSell, taraAmount);
     }
 
+//כשמשתמש קונה טוקנים, שווי השוק יכול לעלות ולכן בודקים האם יש צורך להעביר לבורסה
     function buyTokens(address _funToken, uint256 _minTokens, address _affiliate) public payable nonReentrant {
         require(msg.value > 0, "Invalid buy value");
         FunTokenPool storage token = tokenPools[_funToken];

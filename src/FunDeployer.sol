@@ -108,7 +108,7 @@ contract FunDeployer is Ownable {
             IFunPool(funPool).buyTokens{value: _amountAntiSnipe}(funToken, 0, msg.sender);
             IERC20(funToken).transfer(msg.sender, IERC20(funToken).balanceOf(address(this)));
         }
-
+// מפעיל אירוע
         emit funCreated(
             msg.sender,
             (funToken),
@@ -121,7 +121,7 @@ contract FunDeployer is Ownable {
             block.timestamp
         );
     }
-
+    // 
     function getTradingFeePer() public view returns (uint256) {
         return tradingFeePer;
     }

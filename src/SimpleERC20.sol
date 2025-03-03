@@ -155,6 +155,7 @@ contract SimpleERC20 is IERC20 {
      * @param addedValue The amount of tokens to increase the allowance by.
      */
     function increaseAllowance(
+        
         address spender,
         uint256 addedValue
     ) public returns (bool) {
