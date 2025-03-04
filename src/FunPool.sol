@@ -19,6 +19,11 @@ import {IChainlinkAggregator} from "./interfaces/IChainlinkAggregator.sol";
 import {INonfungiblePositionManager} from "@v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 import {IUniswapV3Factory} from "@v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import {IUniswapV3Pool} from "@v3-core/contracts/interfaces/IUniswapV3Pool.sol";
+// velodrome-finance
+import {IRouter} from "@velodrome/interfaces/IRouter.sol";
+
+import {IPoolFactory} from "@velodrome/interfaces/factories/IPoolFactory.sol";
+
 
 import {console} from "forge-std/console.sol";
 
@@ -61,6 +66,7 @@ contract FunPool is Ownable, ReentrancyGuard {
     address public feeContract;
     address public LPManager;
     address public eventTracker;
+    bool stable1=true;
  
 
     // deployer allowed to create fun tokens
@@ -325,7 +331,7 @@ contract FunPool is Ownable, ReentrancyGuard {
             IFunToken(_funToken).initiateDex();
             token.pool.reserveTARA -= token.pool.initialReserveTARA;
 
-            _addLiquidityV3(_funToken, IERC20(_funToken).balanceOf(address(this)), token.pool.reserveTARA);
+            _addLiquidityVelodrome(_funToken, IERC20(_funToken).balanceOf(address(this)), token.pool.reserveTARA);
 
             uint256 reserveTARA = token.pool.reserveTARA;
             token.pool.reserveTARA = 0;
@@ -342,36 +348,43 @@ contract FunPool is Ownable, ReentrancyGuard {
         }
     }
 
-    function _addLiquidityV3(address _funToken, uint256 _amountTokenDesired, uint256 _nativeForDex) internal {
+    function _addLiquidityVelodrome(address _funToken, uint256 _amountTokenDesired, uint256 _nativeForDex) internal {
         FunTokenPool storage token = tokenPools[_funToken];
 
-        address token0 = _funToken < wtara ? _funToken : wtara;
-        address token1 = _funToken < wtara ? wtara : _funToken;
+        address tokenA = _funToken;//< wtara ? _funToken : wtara;
+        address tokenB = wtara;//_funToken < wtara ? wtara : _funToken;
 
-        console.log("token0: %s", token0);
-        console.log("token1: %s", token1);
+        // console.log("token0: %s", token0);
+        // console.log("token1: %s", token1);
 
         uint256 price_numerator;
         uint256 price_denominator;
+        
 
-        if (token0 == wtara) {
-            price_numerator = _amountTokenDesired;
-            price_denominator = _nativeForDex;
-        } else {
-            price_numerator = _nativeForDex;
-            price_denominator = _amountTokenDesired;
-        }
+        // if (tokenA == wtara) {
+        //     price_numerator = _amountTokenDesired;
+        //     price_denominator = _nativeForDex;
+        // } else {
+        //     price_numerator = _nativeForDex;
+        //     price_denominator = _amountTokenDesired;
+        // }
 
-        console.log("price_numerator: %s", price_numerator);
-        console.log("price_denominator: %s", price_denominator);
+        // console.log("price_numerator: %s", price_numerator);
+        // console.log("price_denominator: %s", price_denominator);
 
-        if (token.storedLPAddress == address(0)) {
-            INonfungiblePositionManager(positionManager).createAndInitializePoolIfNecessary(
-                token0, token1, uniswapPoolFee, encodePriceSqrtX96(price_numerator, price_denominator)
-            );
-            token.storedLPAddress = IUniswapV3Factory(factory).getPool(token0, token1, uniswapPoolFee);
-            require(token.storedLPAddress != address(0), "Pool creation failed");
-        }
+        // if (token.storedLPAddress == address(0)) {
+        //     INonfungiblePositionManager(positionManager).createAndInitializePoolIfNecessary(
+        //         token0, token1, uniswapPoolFee, encodePriceSqrtX96(price_numerator, price_denominator)
+        //     );
+        //     token.storedLPAddress = IUniswapV3Factory(factory).getPool(token0, token1, uniswapPoolFee);
+        //     require(token.storedLPAddress != address(0), "Pool creation failed");
+        // }
+
+        // if (token.storedLPAddress == address(0)) {
+        //     IPoolFactory(positionManager).createPool(token0, token1, fee);
+        //     token.storedLPAddress = IPoolFactory(factory).getPool(token0, token1, fee);
+        //     require(token.storedLPAddress != address(0), "Pool creation failed");
+        // }
 
         IWETH(wtara).deposit{value: _nativeForDex}();
 
@@ -381,31 +394,34 @@ contract FunPool is Ownable, ReentrancyGuard {
         int24 tickLower = -887200;
         int24 tickUpper = 887200;
 
-        uint256 amount0Desired = (token0 == _funToken ? _amountTokenDesired : _nativeForDex);
-        uint256 amount1Desired = (token0 == _funToken ? _nativeForDex : _amountTokenDesired);
+        uint256 amount0Desired = (tokenA == _funToken ? _amountTokenDesired : _nativeForDex);
+        uint256 amount1Desired = (tokenA == _funToken ? _nativeForDex : _amountTokenDesired);
 
         uint256 amount0Min = (amount0Desired * 98) / 100;
         uint256 amount1Min = (amount1Desired * 98) / 100;
 
-        INonfungiblePositionManager.MintParams memory params = INonfungiblePositionManager.MintParams({
-            token0: token0,
-            token1: token1,
-            fee: uniswapPoolFee,
-            tickLower: tickLower,
-            tickUpper: tickUpper,
-            amount0Desired : amount0Desired,
-            amount1Desired : amount1Desired,
-            amount0Min : amount0Min,
-            amount1Min : amount1Min,
-            recipient: address(this),
-            deadline: block.timestamp + 1
-        });
+        IRouter(positionManager).addLiquidity(tokenA, tokenB, stable1, amount0Desired,amount1Desired,
+         amount0Min, amount1Min, address(this), block.timestamp+1 );
 
-        (uint256 tokenId,,,) = INonfungiblePositionManager(positionManager).mint(params);
+        // INonfungiblePositionManager.MintParams memory params = INonfungiblePositionManager.MintParams({
+        //     token0: token0,
+        //     token1: token1,
+        //     fee: uniswapPoolFee,
+        //     tickLower: tickLower,
+        //     tickUpper: tickUpper,
+        //     amount0Desired : amount0Desired,
+        //     amount1Desired : amount1Desired,
+        //     amount0Min : amount0Min,
+        //     amount1Min : amount1Min,
+        //     recipient: address(this),
+        //     deadline: block.timestamp + 1
+        // });
 
-        IERC721(positionManager).approve(LPManager, tokenId);
+        // (uint256 tokenId,,,) = INonfungiblePositionManager(positionManager).mint(params);
 
-        IFunLPManager(LPManager).depositNFTPosition(tokenId, msg.sender);
+        // IERC721(positionManager).approve(LPManager, tokenId);
+
+        // IFunLPManager(LPManager).depositNFTPosition(tokenId, msg.sender);
     }
 
     function encodePriceSqrtX96(uint256 price_numerator, uint256 price_denominator) internal pure returns (uint160) {
