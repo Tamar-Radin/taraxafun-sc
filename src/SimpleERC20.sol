@@ -4,27 +4,14 @@ pragma solidity ^0.8.20;
 interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
-    function transfer(
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transfer(address recipient, uint256 amount) external returns (bool);
     function approve(address spender, uint256 amount) external returns (bool);
-    function allowance(
-        address owner,
-        address spender
-    ) external returns (uint256);
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function allowance(address owner, address spender) external returns (uint256);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
     function decimals() external returns (uint8);
+
     event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
 contract SimpleERC20 is IERC20 {
@@ -65,44 +52,31 @@ contract SimpleERC20 is IERC20 {
         return _balances[account];
     }
 
-    function transfer(
-        address recipient,
-        uint256 amount
-    ) public override returns (bool) {
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
         require(_validateTransfer(msg.sender), "not dex listed");
 
         _transfer(msg.sender, recipient, amount);
         return true;
     }
 
-    function approve(
-        address spender,
-        uint256 amount
-    ) public override returns (bool) {
+    function approve(address spender, uint256 amount) public override returns (bool) {
         _approve(msg.sender, spender, amount);
         return true;
     }
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         require(_validateTransfer(msg.sender), "not dex listed");
         _transfer(sender, recipient, amount);
         _approve(sender, msg.sender, _allowances[sender][msg.sender] - amount);
         return true;
     }
+
     function Burn(uint256 amount) public returns (bool) {
         _burn(msg.sender, amount);
         return true;
     }
 
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal {
+    function _transfer(address sender, address recipient, uint256 amount) internal {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "invalid transfer amount");
@@ -138,10 +112,7 @@ contract SimpleERC20 is IERC20 {
         return false;
     }
 
-    function allowance(
-        address owner,
-        address spender
-    ) public view returns (uint256) {
+    function allowance(address owner, address spender) public view returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -154,15 +125,10 @@ contract SimpleERC20 is IERC20 {
      * @param spender The address which will spend the funds.
      * @param addedValue The amount of tokens to increase the allowance by.
      */
-    function increaseAllowance(
-        
-        address spender,
-        uint256 addedValue
-    ) public returns (bool) {
+    function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
         require(spender != address(0));
 
-        _allowances[msg.sender][spender] = (_allowances[msg.sender][spender] +
-            addedValue);
+        _allowances[msg.sender][spender] = (_allowances[msg.sender][spender] + addedValue);
         emit Approval(msg.sender, spender, _allowances[msg.sender][spender]);
         return true;
     }
@@ -176,14 +142,10 @@ contract SimpleERC20 is IERC20 {
      * @param spender The address which will spend the funds.
      * @param subtractedValue The amount of tokens to decrease the allowance by.
      */
-    function decreaseAllowance(
-        address spender,
-        uint256 subtractedValue
-    ) public returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
         require(spender != address(0));
 
-        _allowances[msg.sender][spender] = (_allowances[msg.sender][spender] -
-            subtractedValue);
+        _allowances[msg.sender][spender] = (_allowances[msg.sender][spender] - subtractedValue);
         emit Approval(msg.sender, spender, _allowances[msg.sender][spender]);
         return true;
     }
@@ -193,6 +155,7 @@ contract SimpleERC20 is IERC20 {
      * @param account The account whose tokens will be burnt.
      * @param amount The amount that will be burnt.
      */
+
     function _burn(address account, uint256 amount) internal {
         require(account != address(0));
         require(amount <= _balances[account]);

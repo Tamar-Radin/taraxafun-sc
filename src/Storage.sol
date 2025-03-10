@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FunStorage is Ownable {
-
     struct FunDetails {
         address funAddress;
         address tokenAddress;
@@ -18,7 +17,7 @@ contract FunStorage is Ownable {
     }
 
     FunDetails[] public funContracts;
-    
+
     uint256 public funCount;
 
     mapping(address => bool) public deployer;
@@ -41,7 +40,6 @@ contract FunStorage is Ownable {
         uint256 _totalSupply,
         uint256 _initialLiquidity
     ) external {
-
         require(deployer[msg.sender], "not deployer");
 
         FunDetails memory newFun = FunDetails({
@@ -60,31 +58,25 @@ contract FunStorage is Ownable {
         funContractToIndex[_funAddress] = funContracts.length - 1;
         tokenContractToIndex[_tokenAddress] = funContracts.length - 1;
         funContractToOwner[_funAddress] = _funOwner;
-        funContractToOwnerCount[_funAddress] = ownerToFunCount[_funOwner]; 
+        funContractToOwnerCount[_funAddress] = ownerToFunCount[_funOwner];
         ownerIndexToStorageIndex[_funOwner][ownerToFunCount[_funOwner]] = funCount;
         ownerToFunCount[_funOwner]++;
         funCount++;
     }
 
-    function getFunContract(
-        uint256 index
-    ) public view returns (FunDetails memory) {
+    function getFunContract(uint256 index) public view returns (FunDetails memory) {
         return funContracts[index];
     }
 
-    function getFunContractIndex(
-        address _funContract
-    ) public view returns (uint256) {
+    function getFunContractIndex(address _funContract) public view returns (uint256) {
         return funContractToIndex[_funContract];
     }
 
-    function getTotalContracts() public view returns (uint) {
+    function getTotalContracts() public view returns (uint256) {
         return funContracts.length;
     }
 
-    function getFunContractOwner(
-        address _funContract
-    ) public view returns (address) {
+    function getFunContractOwner(address _funContract) public view returns (address) {
         return funContractToOwner[_funContract];
     }
 

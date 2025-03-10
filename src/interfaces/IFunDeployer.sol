@@ -2,9 +2,7 @@
 pragma solidity ^0.8.20;
 
 interface IFunDeployer {
-    function getAffiliatePer(
-        address _affiliateAddrs
-    ) external view returns (uint256);
+    function getAffiliatePer(address _affiliateAddrs) external view returns (uint256);
     function getDevFeePer() external view returns (uint256);
     function getTradingFeePer() external view returns (uint256);
     function emitRoyal(

@@ -12,17 +12,9 @@ interface IFunStorageInterface {
         uint256 _totalSupply,
         uint256 _initialLiquidity
     ) external;
-    function getFunContractOwner(
-        address _funContract
-    ) external view returns (address);
-    function getFunContractIndex(
-        address _funContract
-    ) external view returns (uint256);
-    function updateData(
-        address _funOwner,
-        uint256 _ownerFunNumber,
-        string memory _data
-    ) external;
+    function getFunContractOwner(address _funContract) external view returns (address);
+    function getFunContractIndex(address _funContract) external view returns (uint256);
+    function updateData(address _funOwner, uint256 _ownerFunNumber, string memory _data) external;
     function addDeployer(address) external;
     function owner() external view;
 }

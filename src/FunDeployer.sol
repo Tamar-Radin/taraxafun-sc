@@ -9,7 +9,6 @@ import {IFunStorageInterface} from "./interfaces/IFunStorageInterface.sol";
 import {IFunEventTracker} from "./interfaces/IFunEventTracker.sol";
 
 contract FunDeployer is Ownable {
-
     event funCreated(
         address indexed creator,
         address indexed funContract,
@@ -23,11 +22,7 @@ contract FunDeployer is Ownable {
     );
 
     event royal(
-        address indexed tokenAddress, 
-        uint256 liquidityAmount,
-        uint256 tokenAmount, 
-        uint256 time, 
-        uint256 totalVolume
+        address indexed tokenAddress, uint256 liquidityAmount, uint256 tokenAmount, uint256 time, uint256 totalVolume
     );
 
     address public feeWallet;
@@ -36,29 +31,24 @@ contract FunDeployer is Ownable {
     address public funPool;
 
     /// deployment fee in wei
-    uint256 public deploymentFee = 10000000; 
+    uint256 public deploymentFee = 10000000;
     // base of 10000 -> 500 equals 5%
-    uint256 public antiSnipePer = 500; 
+    uint256 public antiSnipePer = 500;
     // base of 10000 -> 1000 equals 10%
-    uint256 public affiliatePer = 1000; 
+    uint256 public affiliatePer = 1000;
     // base of 10000 -> 1000 means 10%
-    uint256 public devFeePer = 1000; 
+    uint256 public devFeePer = 1000;
     // base of 10000 -> 100 equals 1%
-    uint256 public tradingFeePer = 100; 
+    uint256 public tradingFeePer = 100;
     // listing marketcap in $USD
-    uint256 public listThreshold = 10; 
+    uint256 public listThreshold = 10;
     /// virtual liquidity
-    uint256 public initialReserveTARA = 100 ether; 
+    uint256 public initialReserveTARA = 100 ether;
 
     mapping(address => uint256) public affiliateSpecialPer;
     mapping(address => bool) public affiliateSpecial;
 
-    constructor(
-        address _funPool, 
-        address _feeWallet, 
-        address _funStorage, 
-        address _eventTracker
-    ) Ownable(msg.sender) {
+    constructor(address _funPool, address _feeWallet, address _funStorage, address _eventTracker) Ownable(msg.sender) {
         funPool = _funPool;
         feeWallet = _feeWallet;
         funStorage = _funStorage;
@@ -108,7 +98,7 @@ contract FunDeployer is Ownable {
             IFunPool(funPool).buyTokens{value: _amountAntiSnipe}(funToken, 0, msg.sender);
             IERC20(funToken).transfer(msg.sender, IERC20(funToken).balanceOf(address(this)));
         }
-// מפעיל אירוע
+        // מפעיל אירוע
         emit funCreated(
             msg.sender,
             (funToken),
@@ -121,7 +111,8 @@ contract FunDeployer is Ownable {
             block.timestamp
         );
     }
-    // 
+    //
+
     function getTradingFeePer() public view returns (uint256) {
         return tradingFeePer;
     }

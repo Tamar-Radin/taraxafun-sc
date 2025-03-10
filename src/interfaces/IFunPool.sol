@@ -10,10 +10,5 @@ interface IFunPool {
         uint256 _maxBuyPerWallet
     ) external payable returns (address);
 
-    function buyTokens(
-        address funToken,
-        uint256 minTokens,
-        address _affiliate
-    ) external payable;
-
+    function buyTokens(address funToken, uint256 minTokens, address _affiliate) external payable;
 }

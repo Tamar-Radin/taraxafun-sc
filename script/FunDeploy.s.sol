@@ -14,7 +14,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// forge script script/FunDeploy.s.sol --rpc-url https://base-sepolia-rpc.publicnode.com --broadcast --legacy
 
 contract DeployTARAXAFUN is Script {
-    
     FunDeployer deployer;
     FunEventTracker eventTracker;
     FunPool pool;
@@ -37,11 +36,7 @@ contract DeployTARAXAFUN is Script {
         funStorage = new FunStorage();
         eventTracker = new FunEventTracker(address(funStorage));
 
-        pool = new FunPool(
-            address(implementation), 
-            address(treasury),
-            address(eventTracker) 
-        );
+        pool = new FunPool(address(implementation), address(treasury), address(eventTracker));
 
         deployer = new FunDeployer(address(pool), address(treasury), address(funStorage), address(eventTracker));
 
@@ -61,4 +56,3 @@ contract DeployTARAXAFUN is Script {
         // console.log("Deployed Multicall3 at address: ", address(multicall));
     }
 }
-

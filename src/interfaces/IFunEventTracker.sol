@@ -2,18 +2,8 @@
 pragma solidity ^0.8.20;
 
 interface IFunEventTracker {
-    function buyEvent(
-        address _caller,
-        address _funContract,
-        uint256 _buyAmount,
-        uint256 _tokenRecieved
-    ) external;
-    function sellEvent(
-        address _caller,
-        address _funContract,
-        uint256 _sellAmount,
-        uint256 _nativeRecieved
-    ) external;
+    function buyEvent(address _caller, address _funContract, uint256 _buyAmount, uint256 _tokenRecieved) external;
+    function sellEvent(address _caller, address _funContract, uint256 _sellAmount, uint256 _nativeRecieved) external;
     function createFunEvent(
         address creator,
         address funContract,
